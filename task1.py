@@ -35,7 +35,7 @@ class State:
         return (self.pos,self.mat,self.arrow,self.state,self.health)
 
 
-s=State(2,0,1,0,2)
+s=State(4,0,0,0,4)
 
 
 def north():
@@ -270,7 +270,7 @@ def center():
                 s3 =State(s.pos,s.mat,max(s.arrow-1,0),1,max(s.health-1,0))
                 s4 =State(s.pos,s.mat,max(s.arrow-1,0),1,s.health)
                 Dormat_Shoot= 0.9*0.8*(Step_Cost + REWARD[s1.show()] + Gamma*Utility[s1.show()]) +0.1*0.8*(Step_Cost + REWARD[s2.show()] + Gamma*Utility[s2.show()])+0.9*0.2*(Step_Cost + REWARD[s3.show()] + Gamma*Utility[s3.show()])+0.1*0.2*(Step_Cost + REWARD[s4.show()] + Gamma*Utility[s4.show()])
-        elif (s.state==1)
+        elif (s.state==1):
             if s.arrow>=1:
                 s1= State(s.pos,s.mat,0,0,min(s.health+1,4))
                 s2 = State(s.pos,s.mat,max(s.arrow-1,0),1,max(s.health-1,0))
@@ -282,62 +282,161 @@ def center():
         else : 
             arr[0]=Ready_Shoot
         # 2. Stays
-        s1 =State(s.pos,s.mat,s.arrow,s.state,s.health)
-        s2 =State(3,s.mat,s.arrow,s.state,s.health)
-        Stay_cost  = 0.85*(Step_Cost + REWARD[s1.show()]) + Gamma*Utility[s1.show()] +
-                        0.15*(Step_Cost + REWARD[s2.show()]) + Gamma*Utility[s2.show()]
+        Dormant_Stay = -1000
+        Ready_Stay = -1000
+        if s.state==0:
+            s1 =State(s.pos,s.mat,s.arrow,s.state,s.health)
+            s2 =State(3,s.mat,s.arrow,s.state,s.health)
+            s3=State(s.pos,s.mat,s.arrow,1,s.health)
+            s4=State(3,s.mat,s.arrow,1,s.health)
+
+            Dormant_Stay  = 0.85*0.8*(Step_Cost + REWARD[s1.show()] + Gamma*Utility[s1.show()]) +0.15*0.8*(Step_Cost + REWARD[s2.show()] + Gamma*Utility[s2.show()])+0.85*0.2*(Step_Cost + REWARD[s3.show()] + Gamma*Utility[s3.show()]) + 0.15*0.2*(Step_Cost + REWARD[s4.show()] + Gamma*Utility[s4.show()])
+        if s.state ==1:
+            s1 = State(s.pos,s.mat,0,0,min(s.health+1,4))
+            s2=State(s.pos,s.mat,s.arrow,1,s.health)
+            s3=State(3,s.mat,s.arrow,1,s.health)
+            # s4=State(s.pos,s.mat,0,0,min(s.health+1,4))
+            Ready_Stay  = 0.5*(Step_Cost + REWARD[s1.show()]-40 + Gamma*Utility[s1.show()]) +0.85*0.5*(Step_Cost + REWARD[s2.show()] + Gamma*Utility[s2.show()])+0.15*0.5*(Step_Cost + REWARD[s3.show()] + Gamma*Utility[s3.show()]) 
+        
+        if(Dormant_Stay > Ready_Stay):
+            arr[1]=Dormant_Stay
+        else:
+            arr[1]=Ready_Stay
+
         # 3. moving to east
-        s1 =State(3,s.mat,s.arrow,s.state,s.health)
-        s2 =State(3,s.mat,s.arrow,s.state,s.health)
-        Stay_cost  = 0.85*(Step_Cost + REWARD[s1.show()]) + Gamma*Utility[s1.show()] +
-                        0.15*(Step_Cost + REWARD[s2.show()]) + Gamma*Utility[s2.show()]
+
+        Dormant_east =-1000
+        Ready_east= -1000
+        if (s.state==0):
+            s1=State(3,s.mat,s.arrow,s.state,s.health)
+            s2=State(3,s.mat,s.arrow,1,s.health)
+            # s3=State(3,s.mat,s.arrow,s.state,s.health)
+            # s4=State(3,s.mat,s.arrow,1,s.health)
+            Dormant_east  = 0.8*(Step_Cost + REWARD[s1.show()] + Gamma*Utility[s1.show()]) +0.2*(Step_Cost + REWARD[s2.show()] + Gamma*Utility[s2.show()])
+        
+        else : 
+            s1=State(s.pos,s.mat,0,0,min(s.health+1,4))
+            # s2=State(s.pos,s.mat,0,0,min(s.health+1,4))
+            # s3=State(s.pos,s.mat,s.arrow,1,s.health)
+            s2=State(s.pos,s.mat,s.arrow,1,s.health)
+            # s3=State(3,s.mat,s.arrow,1,s.health)
+
+            Ready_east = 0.5*(Step_Cost + REWARD[s1.show()]-40 + Gamma*Utility[s1.show()])+0.5*(Step_Cost + REWARD[s2.show()] + Gamma*Utility[s2.show()])
+        if (Dormant_east > Ready_east):
+            arr[2]=Dormant_east
+        else:
+            arr[2]=Ready_east
         # 4. moving to west
-        s1 =State(2,s.mat,s.arrow,s.state,s.health)
-        s2 =State(3,s.mat,s.arrow,s.state,s.health)
-        Stay_cost  = 0.85*(Step_Cost + REWARD[s1.show()]) + Gamma*Utility[s1.show()] +
-                        0.15*(Step_Cost + REWARD[s2.show()]) + Gamma*Utility[s2.show()]
+        Dormant_west =-1000
+        Ready_west= -1000
+        if (s.state==0):
+            s1=State(2,s.mat,s.arrow,s.state,s.health)
+            s2=State(3,s.mat,s.arrow,s.state,s.health)
+            s3=State(2,s.mat,s.arrow,1,s.health)
+            s2=State(3,s.mat,s.arrow,1,s.health)
+            # s3=State(3,s.mat,s.arrow,s.state,s.health)
+            # s4=State(3,s.mat,s.arrow,1,s.health)
+            Dormant_west  = 0.85*0.8*(Step_Cost + REWARD[s1.show()] + Gamma*Utility[s1.show()]) +0.15*0.8*(Step_Cost + REWARD[s2.show()] + Gamma*Utility[s2.show()])+0.85*0.2*(Step_Cost + REWARD[s3.show()] + Gamma*Utility[s3.show()]) +0.15*0.2*(Step_Cost + REWARD[s4.show()] + Gamma*Utility[s4.show()])
+        
+        else : 
+            s1=State(s.pos,s.mat,0,0,min(s.health+1,4))
+            # s2=State(s.pos,s.mat,0,0,min(s.health+1,4))
+            # s3=State(s.pos,s.mat,s.arrow,1,s.health)
+            s2=State(2,s.mat,s.arrow,1,s.health)
+            s3=State(3,s.mat,s.arrow,1,s.health)
+
+            Ready_west = 0.5*(Step_Cost + REWARD[s1.show()]-40 + Gamma*Utility[s1.show()])+0.5*0.85*(Step_Cost + REWARD[s2.show()] + Gamma*Utility[s2.show()])+0.5*0.15*(Step_Cost + REWARD[s3.show()] + Gamma*Utility[s3.show()])
+        if (Dormant_west > Ready_west):
+            arr[3]=Dormant_west
+        else:
+            arr[3]=Ready_west
+
         # 5. moving to north
-        s1 =State(s.pos,s.mat,s.arrow,s.state,s.health)
-        s2 =State(0,s.mat,s.arrow,s.state,s.health)
-        Stay_cost  = 0.85*(Step_Cost + REWARD[s1.show()]) + Gamma*Utility[s1.show()] +
-                        0.15*(Step_Cost + REWARD[s2.show()]) + Gamma*Utility[s2.show()]
+        Dormant_north =-1000
+        Ready_north= -1000
+        if (s.state==0):
+            s1=State(0,s.mat,s.arrow,s.state,s.health)
+            s2=State(3,s.mat,s.arrow,s.state,s.health)
+            s3=State(0,s.mat,s.arrow,1,s.health)
+            s2=State(3,s.mat,s.arrow,1,s.health)
+            # s3=State(3,s.mat,s.arrow,s.state,s.health)
+            # s4=State(3,s.mat,s.arrow,1,s.health)
+            Dormant_north  = 0.85*0.8*(Step_Cost + REWARD[s1.show()] + Gamma*Utility[s1.show()]) +0.15*0.8*(Step_Cost + REWARD[s2.show()] + Gamma*Utility[s2.show()])+0.85*0.2*(Step_Cost + REWARD[s3.show()] + Gamma*Utility[s3.show()]) +0.15*0.2*(Step_Cost + REWARD[s4.show()] + Gamma*Utility[s4.show()])
+        
+        else : 
+            s1=State(s.pos,s.mat,0,0,min(s.health+1,4))
+            # s2=State(s.pos,s.mat,0,0,min(s.health+1,4))
+            # s3=State(s.pos,s.mat,s.arrow,1,s.health)
+            s2=State(0,s.mat,s.arrow,1,s.health)
+            s3=State(3,s.mat,s.arrow,1,s.health)
+
+            Ready_west = 0.5*(Step_Cost + REWARD[s1.show()]-40 + Gamma*Utility[s1.show()])+0.5*0.85*(Step_Cost + REWARD[s2.show()] + Gamma*Utility[s2.show()])+0.5*0.15*(Step_Cost + REWARD[s3.show()] + Gamma*Utility[s3.show()])
+        if (Dormant_north > Ready_north):
+            arr[4]=Dormant_north
+        else:
+            arr[4]=Ready_north
+
         # 6. moving to south 
-        s1 =State(s.pos,s.mat,s.arrow,s.state,s.health)
-        s2 =State(1,s.mat,s.arrow,s.state,s.health)
-        Stay_cost  = 0.85*(Step_Cost + REWARD[s1.show()]) + Gamma*Utility[s1.show()] +
-                        0.15*(Step_Cost + REWARD[s2.show()]) + Gamma*Utility[s2.show()]
+        Dormant_south =-1000
+        Ready_south= -1000
+        if (s.state==0):
+            s1=State(1,s.mat,s.arrow,s.state,s.health)
+            s2=State(3,s.mat,s.arrow,s.state,s.health)
+            s3=State(1,s.mat,s.arrow,1,s.health)
+            s2=State(3,s.mat,s.arrow,1,s.health)
+            # s3=State(3,s.mat,s.arrow,s.state,s.health)
+            # s4=State(3,s.mat,s.arrow,1,s.health)
+            Dormant_south = 0.85*0.8*(Step_Cost + REWARD[s1.show()] + Gamma*Utility[s1.show()]) +0.15*0.8*(Step_Cost + REWARD[s2.show()] + Gamma*Utility[s2.show()])+0.85*0.2*(Step_Cost + REWARD[s3.show()] + Gamma*Utility[s3.show()]) +0.15*0.2*(Step_Cost + REWARD[s4.show()] + Gamma*Utility[s4.show()])
+        
+        else : 
+            s1=State(s.pos,s.mat,0,0,min(s.health+1,4))
+            # s2=State(s.pos,s.mat,0,0,min(s.health+1,4))
+            # s3=State(s.pos,s.mat,s.arrow,1,s.health)
+            s2=State(1,s.mat,s.arrow,1,s.health)
+            s3=State(3,s.mat,s.arrow,1,s.health)
+
+            Ready_south = 0.5*(Step_Cost + REWARD[s1.show()]-40 + Gamma*Utility[s1.show()])+0.5*0.85*(Step_Cost + REWARD[s2.show()] + Gamma*Utility[s2.show()])+0.5*0.15*(Step_Cost + REWARD[s3.show()] + Gamma*Utility[s3.show()])
+        if (Dormant_south > Ready_south):
+            arr[5]=Dormant_south
+        else:
+            arr[5]=Ready_south
+
+
         #7. Shooting blade
-        # s1 =State(s.pos,s.mat,s.arrow,s.state,s.health-50)
-        # s2 =State(s.pos,s.mat,s.arrow,s.state,s.health)
-        # Shoot_blade= 0.1*(Step_Cost + REWARD[s1.show()]) + Gamma*Utility[s1.show()] +
-        #                 0.9*(Step_Cost + REWARD[s2.show()]) + Gamma*Utility[s2.show()]
+      
         Dormat_blade = -10000
         Ready_blade = -10000
         if (s.state == 0):
-            s1 =State(s.pos,s.mat,s.arrow,s.state,max(s.health-50,0))
+            s1 =State(s.pos,s.mat,s.arrow,s.state,max(s.health-2,0))
             s2 =State(s.pos,s.mat,s.arrow,s.state,s.health)
-            s3 =State(s.pos,s.mat,s.arrow,1,max(s.health-25,0))
+            s3 =State(s.pos,s.mat,s.arrow,1,max(s.health-2,0))
             s4 =State(s.pos,s.mat,s.arrow,1,s.health)
-            Dormat_blade= 0.2*0.8*(Step_Cost + REWARD[s1.show()] + Gamma*Utility[s1.show()]) +
-                            0.8*0.8*(Step_Cost + REWARD[s2.show()] + Gamma*Utility[s2.show()])+
-                            0.2*0.2*(Step_Cost + REWARD[s3.show()] + Gamma*Utility[s3.show()])+
-                            0.8*0.2*(Step_Cost + REWARD[s4.show()] + Gamma*Utility[s4.show()])
-        elif (s.state==1)
-            s1= State(s.pos,s.mat,0,0,min(s.health+25,100))
-            s2 = State(s.pos,s.mat,s.arrow,1,max(s.health-50,0))
+            Dormat_blade= 0.1*0.8*(Step_Cost + REWARD[s1.show()] + Gamma*Utility[s1.show()]) +0.9*0.8*(Step_Cost + REWARD[s2.show()] + Gamma*Utility[s2.show()])+0.1*0.2*(Step_Cost + REWARD[s3.show()] + Gamma*Utility[s3.show()])+0.2*0.9*(Step_Cost + REWARD[s4.show()] + Gamma*Utility[s4.show()])
+        elif (s.state==1):
+            s1= State(s.pos,s.mat,0,0,min(s.health+1,4))
+            s2 = State(s.pos,s.mat,s.arrow,1,max(s.health-2,0))
             s3= State(s.pos,s.mat,s.arrow,1,s.health)
-            Ready_Shoot = 0.5*(Step_Cost + REWARD[s1.show()] - 40  +Gamma*Utility[s1.show()]) +
-                            0.5*0.2*(Step_Cost + REWARD[s2.show()] + Gamma*Utility[s2.show()])+
-                            0.5*0.8*(Step_Cost + REWARD[s3.show()] + Gamma*Utility[s3.show()])
+            Ready_blade = 0.5*(Step_Cost + REWARD[s1.show()] - 40  +Gamma*Utility[s1.show()]) +0.5*0.1*(Step_Cost + REWARD[s2.show()] + Gamma*Utility[s2.show()])+0.5*0.9*(Step_Cost + REWARD[s3.show()] + Gamma*Utility[s3.show()])
+        
+        if (Dormat_blade > Ready_blade):
+            arr[6]=Dormat_blade
+        else : 
+            arr[6]=Ready_blade
+        # print(arr[6])
         mx = -10000
         ind = 0
-        actions = ['SHOOT','STAY','RIGHT']
-        for i in range(3):
-            if arr[i]>mx:
+        actions = ['SHOOT','STAY','RIGHT','LEFT','UP','DOWN','HIT']
+        for i in range(7):
+            print(arr[i])
+            if arr[i]>=mx:
                 ind= i
                 mx=arr[i]
         
         print(positions[s.pos],s.mat,s.arrow,states[s.state],Health[s.health],":",actions[ind],"[",max(arr),"]")
+
+
+
+
 def update():
     if s.pos==0:
         north()
